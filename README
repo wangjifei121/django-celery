@@ -1,0 +1,31 @@
+一、 Django中配置
+（1）在主工程的配置文件settings.py 中应用注册表INSTALLED_APPS中加入 djcelery
+二、在settings.py 中加入celery配置信息
+  ​ 当djcelery.setup_loader()运行时，Celery便会去查看INSTALLD_APPS下包含的所有app目录中的tasks.py文件，
+  找到标记为task的方法，将它们注册为celery task
+  ​ BROKER_URL：broker是代理人，它负责分发任务给worker去执行。我使用的是Redis作为broker
+  ​ 没有设置 CELERY_RESULT_BACKEND，默认没有配置，此时Django会使用默认的数据库(也是你指定的orm数据库)。
+    CELERY_IMPORTS：是导入目标任务文件
+    CELERYBEAT_SCHEDULER：使用了django-celery默认的数据库调度模型,任务执行周期都被存在默认指定的orm数据库中．
+    CELERYBEAT_SCHEDULE：设置定时的时间配置， 可以精确到秒，分钟，小时，天，周等。
+三、创建应用实例
+  ​ 在主工程目录添加celery.py， 添加自动检索django工程tasks任务
+四、 创建任务 tasks
+  每个任务本质上就是一个函数，在tasks.py中，写入你想要执行的函数即可。
+  在应用art中添加我们需要提供的异步服务和定时服务
+五、迁移生成celery需要的数据表
+  python manage.py migrate
+  此时数据库表结构多出了几个
+  
+六、启动服务，测试
+  
+  启动django celery 服务
+  python manage.py celery worker --loglevel=info
+  此时异步处理和定时处理服务都已经启动了
+
+  测试定时器，发送邮件
+  在终端输入 python manage.py celerybeat -l info
+  会自动触发每隔30s执行一次tsend_email定时器函数，发送邮件
+  
+  
+https://segmentfault.com/a/1190000016082551
